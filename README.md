@@ -26,13 +26,9 @@ The goal is to provide a smart, interactive platform that makes learning more ef
 
 ---
 
-## ⚙️ Getting Started
+## ⚙️ What you need to have ?
 ### Prerequisites
 - .NET 6 or later  
 - SQL Server (or local DB setup)  
 - Visual Studio / VS Code  
 
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/AiStudyMate.git
