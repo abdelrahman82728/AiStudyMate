@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\assistant.html" />
+    <None Include="wwwroot\dashboard redirect works .html" />
+    <None Include="wwwroot\dashboard.html" />
+    <None Include="wwwroot\flashcards.html" />
+    <None Include="wwwroot\login CSS + JS .html" />
+    <None Include="wwwroot\login.html" />
+    <None Include="wwwroot\main.html" />
+    <None Include="wwwroot\notes.html" />
+    <None Include="wwwroot\progress.html" />
+    <None Include="wwwroot\quiz.html" />
+    <None Include="wwwroot\style.html" />
+  </ItemGroup>
+
+</Project>
