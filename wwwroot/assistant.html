@@ -1,0 +1,528 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI StudyMate — Assistant</title>
+    <style>
+        /* Existing base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f3f4f6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Styling for code snippets the AI might send */
+        .message-content code {
+            background-color: #edf2f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #e53e3e; /* Reddish color for inline code */
+        }
+
+        .message-content pre {
+            background-color: #2d3748; /* Dark background for code blocks */
+            color: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+            .message-content pre code {
+                background-color: transparent;
+                color: inherit;
+                padding: 0;
+            }
+
+        ai-message {
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        .ai-message p {
+            margin-bottom: 12px;
+        }
+
+        .ai-message ul, .ai-message ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .ai-message strong {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .message-content ul, .message-content ol {
+            margin-left: 20px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .message-content li {
+            margin-bottom: 4px;
+        }
+
+        .message-content p {
+            margin-bottom: 10px;
+        }
+
+        .message-content strong {
+            font-weight: bold;
+            color: #1a202c;
+        }
+
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+            .nav-link:hover, .nav-link.active {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+        /* Layout Main */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Sidebar - Chat History */
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f3f4f6;
+            border: 1px dashed #667eea;
+            border-radius: 8px;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .new-chat-btn:hover {
+                background: #667eea;
+                color: white;
+            }
+
+        .convo-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .convo-item {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+            .convo-item:hover {
+                background: #f9fafb;
+                border-color: #e5e7eb;
+            }
+
+            .convo-item.active {
+                background: #eef2ff;
+                border-color: #667eea;
+                color: #4338ca;
+            }
+
+        .convo-title {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f9fafb;
+            position: relative;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Message Bubbles */
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+            .message.user {
+                align-self: flex-end;
+                flex-direction: row-reverse;
+            }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: #e5e7eb;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #1f2937;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Input Bar */
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            resize: none;
+            height: 45px;
+        }
+
+        .send-button {
+            padding: 0 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo-section">
+                <span class="brand-name">📚 AI StudyMate</span>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="assistant.html" class="nav-link active">Assistant</a>
+                <a href="login.html" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+            </div>
+            <div class="convo-list" id="convoList">
+            </div>
+        </aside>
+
+        <main class="chat-main">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message" style="text-align: center; color: #9ca3af; padding-top: 50px;">
+                    <h3>Ready to study?</h3>
+                    <p>Select a previous chat or start a new one.</p>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea id="messageInput" class="chat-textarea" placeholder="Type your question..."></textarea>
+                    <button class="send-button" onclick="sendMessage()" id="sendButton">Send</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:7214/api/Ai';
+        const chatMessages = document.getElementById('chatMessages');
+        const convoList = document.getElementById('convoList');
+        const messageInput = document.getElementById('messageInput');
+
+        let currentConversationId = 0;
+
+        // Set options for marked to handle line breaks and security
+        marked.setOptions({
+            breaks: true, // Adds <br> on single line breaks
+            gfm: true     // Enables GitHub Flavored Markdown (tables, lists, etc.)
+        });
+
+        function formatRelativeTime(dateString) {
+            if (!dateString) return "";
+            const date = new Date(dateString.endsWith('Z') ? dateString : dateString + 'Z');
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-ui';
+            typingDiv.className = 'message assistant';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>`;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const el = document.getElementById('typing-ui');
+            if (el) el.remove();
+        }
+
+        function getAuthHeader() {
+            const token = localStorage.getItem('authToken');
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        }
+
+        async function loadConvoShells() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/GetConvoShells`, { headers: getAuthHeader() });
+                const shells = await response.json();
+                convoList.innerHTML = '';
+                shells.forEach(shell => {
+                    const id = shell.conversationID || shell.ConversationID;
+                    const title = shell.conversationTitle || shell.ConversationTitle || "New Chat";
+                    const timestamp = shell.dateLastUpdated || shell.dateCreated || shell.DateCreated;
+
+                    const item = document.createElement('div');
+                    item.className = `convo-item ${currentConversationId === id ? 'active' : ''}`;
+                    item.onclick = () => loadMessages(id);
+                    item.innerHTML = `
+                        <div class="convo-info">
+                            <div class="convo-title-row"><span class="convo-icon">💬</span><span class="convo-title">${title}</span></div>
+                            <div class="convo-meta"><span class="time-badge">${formatRelativeTime(timestamp)}</span></div>
+                        </div>`;
+                    convoList.appendChild(item);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadMessages(convoId) {
+            if (!convoId || convoId === "undefined") return;
+            currentConversationId = convoId;
+            chatMessages.innerHTML = '';
+            loadConvoShells();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/GetAllMessages/${convoId}`, { headers: getAuthHeader() });
+                const messages = await response.json();
+                messages.forEach(msg => {
+                    const content = msg.messageContent || msg.MessageContent;
+                    const sender = (msg.senderType || msg.SenderType).toLowerCase();
+                    const type = (sender === 'human' || sender === 'user') ? 'user' : 'assistant';
+                    addMessage(content, type);
+                });
+            } catch (error) { console.error(error); }
+        }
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+            addMessage(text, 'user');
+            messageInput.value = '';
+            showTypingIndicator();
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: getAuthHeader(),
+                    body: JSON.stringify({
+                        ConversationID: currentConversationId,
+                        SenderType: "human",
+                        MessageContent: text
+                    })
+                });
+                const data = await response.json();
+                hideTypingIndicator();
+                const aiText = data.messageContent || data.MessageContent;
+                const newId = data.conversationID || data.ConversationID;
+                if (aiText) addMessage(aiText, 'assistant');
+                if (currentConversationId === 0 || currentConversationId !== newId) {
+                    currentConversationId = newId;
+                    setTimeout(loadConvoShells, 500);
+                }
+            } catch (err) {
+                hideTypingIndicator();
+                addMessage("❌ Error: " + err.message, 'assistant');
+            }
+        }
+
+        // --- WORKING ADD MESSAGE FUNCTION ---
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+
+            // IMPORTANT: We use marked.parse for the assistant to handle the beautiful formatting
+            // If it's the user, we keep it as plain text to avoid accidental formatting
+            const formattedContent = (sender === 'assistant') ? marked.parse(text) : text;
+
+            msgDiv.innerHTML = `
+                <div class="message-avatar">${sender === 'user' ? '👤' : '🤖'}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+
+            chatMessages.appendChild(msgDiv);
+
+            // Auto-scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function startNewChat() {
+            currentConversationId = 0;
+            chatMessages.innerHTML = `<div class="welcome-message" style="text-align:center; padding-top:50px;"><h3>New Session</h3></div>`;
+            loadConvoShells();
+        }
+
+        window.onload = loadConvoShells;
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>
